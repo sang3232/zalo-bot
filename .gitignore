@@ -1,0 +1,8 @@
+node_modules/
+user_data/
+.env
+*.log
+data/
+sao_luu/
+logs/
+config/config.json

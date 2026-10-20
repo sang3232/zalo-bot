@@ -1,0 +1,92 @@
+{
+  "urgentKeywords": [
+    "sập",
+    "sap",
+    "gấp",
+    "gap",
+    "khẩn cấp",
+    "khan cap",
+    "khẩn",
+    "khan",
+    "sập server",
+    "sập web",
+    "lỗi hệ thống",
+    "loi he thong",
+    "lỗi",
+    "loi",
+    "cháy",
+    "cứu",
+    "cuu",
+    "báo động",
+    "chuyển tiền ngay",
+    "alo gấp",
+    "alo",
+    "urgent",
+    "emergency",
+    "critical",
+    "down server",
+    "help"
+  ],
+  "vipSenders": [
+    "Sếp",
+    "Khách VIP",
+    "Server Alert",
+    "Giám sát hệ thống",
+    "My Documents",
+    "Cloud của tôi"
+  ],
+  "timeSettings": {
+    "nightMode": {
+      "enabled": true,
+      "startHour": 22,
+      "endHour": 7,
+      "description": "Ban đêm (22h - 7h sáng): Tăng độ nhạy cảnh báo tối đa để đánh thức khi có sự cố khẩn cấp"
+    },
+    "alertSchedule": {
+      "enabled": false,
+      "activeHours": "00:00-23:59"
+    }
+  },
+  "monitoredGroups": [],
+  "cooldownMinutes": 3,
+  "enableSoundAlert": true,
+  "autoTaskFromAlerts": true,
+  "ignoreOwnMessages": true,
+  "ai": {
+    "enabled": true,
+    "model": "z-ai/glm-5.3-flash",
+    "scope": "all",
+    "maxCallsPerMinute": 20
+  },
+  "autoSchedule": {
+    "enabled": true,
+    "model": "z-ai/glm-5.3-flash",
+    "contextWaitSeconds": 90,
+    "messagesBefore": 6,
+    "messagesAfter": 6,
+    "maxFileMB": 20,
+    "maxFileChars": 60000,
+    "minConfidence": 0.6,
+    "scheduleFromText": true,
+    "maxTextCallsPerHour": 30,
+    "conversationQuietSeconds": 60,
+    "conversationMaxWaitSeconds": 600,
+    "conversationWindowMinutes": 180,
+    "conversationMaxMessages": 25,
+    "ocrInlineImages": true,
+    "maxImagesPerHour": 60,
+    "ocrLang": "en",
+    "visionFallback": true
+  },
+  "reminders": {
+    "enabled": true,
+    "beforeMinutes": [
+      1440,
+      60,
+      0
+    ],
+    "allDayEveningBefore": "20:00",
+    "allDayAt": "07:00",
+    "yuyuko": true
+  }
+}

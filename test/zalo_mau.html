@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Zalo mẫu</title>
+<!--
+  Trang mẫu cho test/listener.test.js. Khung, tên class, thuộc tính lấy từ lần soi Zalo Web thật
+  (01/10/2026, phiên của bot, chỉ mở "My Documents"). Chữ đều là chữ giả.
+  CHƯA thấy trên trang thật nên ĐOÁN: khối tên người gửi trong nhóm (.message-sender-name-content)
+  và khung chữ của tin văn bản (.text-message).
+-->
+<style>
+  .none { display: none; }
+  .file-message__container:hover .file-message__content-actions.none { display: flex; }
+</style>
+</head>
+<body class="notranslate default web active">
+<div id="app"><div id="app-page" class="flx flx-col default">
+<div id="container" class="flx WEB">
+  <nav id="sidebarNav" class="flx h100 show-chat">
+    <div class="flx-cell flx flx-col rel ovf-hidden"><div class="flx flx-col flx-1 h0">
+      <div id="conversationListId" class="w100 h100 web"><div><div class="virtualized-scroll"><div>
+        <div id="conversationList" class="ReactVirtualized__Grid ReactVirtualized__List">
+          <div class="ReactVirtualized__Grid__innerScrollContainer" id="dsHoiThoai"></div>
+        </div>
+      </div></div></div></div>
+    </div></div>
+  </nav>
+  <span><main>
+    <div id="chatViewContainer" class="main__center flx flx-col flx-1 animated w0">
+      <header id="header" class="flx"><div class="threadChat rel flx flx-1 flx-al-c">
+        <div class="threadChat__title flx-1 flx flx-col w0"><div class="flx flx-al-c main-title-container w100"><div class="flx flx-al-c over-hidden">
+          <div class="header-title flx flx-al-c flex-1" id="tieuDe">Lớp 12A</div>
+        </div></div><div class="flx"><div class="subtitle header-subtitle" id="phuDe"></div></div></div>
+      </div></header>
+      <article id="chatView" class="rel"><div id="messageView" class="message-view"><div>
+        <div id="messageViewContainer" class="message-view__scroll"><div class="transform-gpu">
+          <div id="messageViewScroll" class="message-view__scroll__inner --audit-message-spacing --less-space"></div>
+        </div></div>
+      </div></div></article>
+    </div>
+  </main></span>
+</div>
+</div></div>
+
+<script>
+let soTin = 1000;
+let tsCuoi = 0;
+
+function hoiThoaiHtml({ ten, nguoi = '', chu, khoaGio = 'STR_DAY', soGio = '1', nhieuNguoi = false, ghim = false, icon = '' }) {
+  return `
+  <div class="msg-item${ghim ? ' pinned' : ''}" data-id="${ghim ? 'div_TabMsg_ThrdChFileXFER' : 'div_TabMsg_ThrdChItem'}">
+    <div class="gridv2 conv-item conv-rel lv-2 fluid tiny grid-fluid-8">
+      <div class="flx flx-center conv-item__avatar grd-ava lv-2 grid-item"><div class="rel zavatar-container conversationList__avatar">
+        <div class="zavatar zavatar-l ${nhieuNguoi ? 'zavatar-multi' : 'zavatar-single'} flx flx-al-c flx-center rel disableDrag"><img class="a-child" alt=""></div>
+      </div></div>
+      <div class="conv-status grid-item"></div>
+      <div class="conv-item-title__name truncate grid-item"><div class="truncate">${ten}</div></div>
+      <div class="conv-item-title__more rel grid-item"><div class="flx flx-al-c"><div class="flx flx-center">
+        <span class="preview-time"><span>${soGio} <span data-translate-inner="${khoaGio}">${khoaGio === 'STR_FEW_SECONDS' ? 'Vài giây' : khoaGio === 'STR_MINS' ? 'phút' : 'ngày'}</span></span></span>
+      </div></div></div>
+      <div class="conv-item-body flx flx-al-c truncate grid-item"><div class="conv-item-body__main truncate flx flx-al-c w100">
+        <div class="z-conv-message"><div class="z-conv-message__preview-message">
+          ${nguoi ? `<span class="z-conv-message__preview-sender-name">${nguoi}: </span>` : ''}
+          ${icon ? `<span class="z-conv-message__preview-icon"><i class="fa ${icon}"></i></span>` : ''}
+          <div class="inline"><span class="inline">${chu}</span></div>
+        </div></div>
+      </div></div>
+    </div>
+  </div>`;
+}
+
+document.getElementById('dsHoiThoai').innerHTML = [
+  hoiThoaiHtml({ ten: 'My Documents', nguoi: 'Bạn', chu: 'Hình ảnh', icon: 'fa-icon-outline-picture', khoaGio: 'STR_MINS', soGio: '5', ghim: true }),
+  hoiThoaiHtml({ ten: 'Mẹ', chu: 'Con nhớ ăn cơm' }),
+  hoiThoaiHtml({ ten: 'Lớp 12A', nguoi: 'Cô Lan', chu: 'Chào cả lớp', nhieuNguoi: true }),
+  hoiThoaiHtml({ ten: 'Nhóm Dự án', nguoi: 'Hùng', chu: 'Gửi bản nháp rồi nhé' }),
+  hoiThoaiHtml({ ten: 'Chị Hoa', chu: 'Cảm ơn em nhé' })
+].join('');
+
+function khoiNgay(laHomNay, ngay) {
+  const k = document.createElement('div');
+  k.className = 'block-date';
+  k.innerHTML = `<div class="chat-date --time island"><div class="start"></div><span class="content">
+    <span data-translate-inner="STR_DATE_TIME" data-translate-text-arguments='${laHomNay ? '["",{"textKey":""},{"textKey":"STR_TODAY"}]' : `["",{"textKey":""},"${ngay}"]`}'>${laHomNay ? 'Hôm nay' : ngay}</span>
+  </span><div class="flx"><div class="end"></div></div></div>`;
+  return k;
+}
+
+function anhBlob(chu) {
+  const c = document.createElement('canvas');
+  c.width = 400; c.height = 120;
+  const g = c.getContext('2d');
+  g.fillStyle = '#fff'; g.fillRect(0, 0, 400, 120);
+  g.fillStyle = '#000'; g.font = '28px sans-serif'; g.fillText(chu, 10, 60);
+  for (let i = 0; i < 3000; i++) { g.fillStyle = `rgb(${i % 255},${(i * 7) % 255},${(i * 13) % 255})`; g.fillRect(i % 400, 90 + (i % 30), 1, 1); }
+  return new Promise(ok => c.toBlob(b => ok(URL.createObjectURL(b)), 'image/png'));
+}
+
+function taiFileGia(ten) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['Thi Toan 8h00 ngay 15/10/2026'], { type: 'application/pdf' }));
+  a.download = ten;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+// Tạo một .chat-item theo khung soi được
+const gioHienTai = () => { const d = new Date(); return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
+
+window.taoTin = async function ({ me = false, ten = '', chu = '', file = null, anh = 0, gio = gioHienTai(), guiLuc = null, dName }) {
+  // id thật: bb_msg_id_<cliMsgId = lúc gửi, 13 chữ số> (soi 20/10)
+  ++soTin;
+  const ts = guiLuc ?? (tsCuoi = Math.max(Date.now(), tsCuoi + 1));
+  const id = `bb_msg_id_${ts}`;
+  let noiDung;
+  if (file) {
+    const dau = file.ten.slice(0, -8), duoi = file.ten.slice(-8);
+    noiDung = `<div><div class="file-message-v2 file-message__container"><div></div>
+      <div class="file-message__content-container">
+        <div class="file-tit-box file-message-icon"><div class="svg-icon file-icon"></div></div>
+        <div class="file-message__content">
+          <div class="file-message__content-title" title="${file.ten}"><div class="truncate">${dau}</div><div>${duoi}</div></div>
+          <div class="file-message__content-info-container">
+            <div class="truncate">
+              <span class="file-message__content-info-wrapper-size"><span class="file-message__content-info-size" title="${file.size}">${file.size}</span></span>
+              <div class="WEB cloud-status clouded"><i class="cloud-icon"></i><span class="cloud-title clouded">Đã có trên Cloud</span></div>
+              <span class="file-message__content-info-preview-file"><span>Nhấn để xem trước</span></span>
+            </div>
+            <div class="file-message__content-actions flx-e none">
+              <a class="clickable file-message__actions download" data-translate-title="STR_DOWNLOAD_FILE" title="Lưu về máy" onclick="taiFileGia(${JSON.stringify(file.ten).replace(/"/g, '&quot;')})"><i class="fa"></i></a>
+            </div>
+          </div>
+        </div>
+      </div><div></div></div></div>`;
+  } else if (anh) {
+    const src = await anhBlob('Hop lop 9h ngay 20/10/2026');
+    noiDung = `<div class="chatImageMessage--audit img-msg-v2 photo-message-v2"><div class="img-msg-v2__bub"><div class="local-overlaying-message-status-wrapper"><div class="msg-select-overlay">
+      <div class="img-center-box bg-color"><img class="fit_contain zimg-el" draggable="false" src="${src}"><div class="image-box__preview-thumb tiny-thumb"></div></div>
+      <div class="WEB cloud-status clouded"><i class="cloud-icon"></i></div>
+    </div></div><div class="qu-ba -none"></div></div></div>`;
+  } else {
+    noiDung = `<div class="text-message"><span class="text">${chu}</span></div>`;
+  }
+  const el = document.createElement('div');
+  el.className = `chat-item flx chat-item-audit chat-item-spacing${me ? ' me' : ''}`;
+  el.innerHTML = `<div class="chat-content flx flx-col flx-cell chat-content-audit">
+    ${ten ? `<div class="message-sender-name-content"><div class="truncate">${ten}</div></div>` : ''}
+    <div id="${id}" class="chat-message chat-message-v2 wrap-message rotate-container${me ? ' me' : ''}" data-component="bubble-message">
+      <div class="message-wrapper${me ? ' message-wrapper--me' : ''}"><div class="message-content-wrapper"><div class="message-content-render focused-background">
+        <div class="${me ? 'me ' : ''}pin-react" data-component="message-content-view"><div data-id="div_DisabledTargetEventLayer"><div class="message-action">
+          ${noiDung}
+          <div class="message-reaction-container"><div data-id="btn_SentMsg_React"><div class="emoji-list-wrapper hide-elist"><div class="reaction-emoji-list">
+            <div class="reaction-emoji-icon"><span class="emoji-sizer emoji-outer">/-heart</span></div></div></div></div></div>
+        </div></div>
+        <div class="floating-menu-wrapper"><div></div></div></div>
+        <div class="message-reaction-v2-space"></div>
+        <div class="message-content-send-time-wrapper"><div class="bubble-message-time-status"><div class="card-send-time"><span class="card-send-time__sendTime">${gio}</span></div>
+          <div class="bubble-message-status"><span data-translate-inner="STR_SENT">Đã gửi</span></div></div></div>
+      </div></div></div>
+    </div>
+  </div>`;
+  // Dữ liệu React giả đúng chỗ của trang thật: fiber cha cấp 2 của .chat-message có props.data
+  el.querySelector('.chat-message').__reactFiber$mau = { memoizedProps: {}, return: { memoizedProps: {}, return: { memoizedProps: { data: {
+    msgId: String(9000000000 + soTin), cliMsgId: String(ts), sendDttm: String(ts), serverTime: String(ts),
+    fromUid: me ? '0' : String(1000000 + soTin), dName: dName !== undefined ? dName : (me ? 'Tôi' : ten)
+  } } } } };
+  return el;
+};
+
+// Thêm tin vào khối ngày thứ `khoi` (0 = hôm qua, 1 = hôm nay); trả về id khung tin
+window.themTin = async function (opts, khoi = 1) {
+  const el = await taoTin(opts);
+  document.querySelectorAll('.block-date')[khoi].appendChild(el);
+  return el.querySelector('.chat-message').id;
+};
+
+// Cuộn lên xem lịch sử: Zalo chèn thêm tin cũ (vẫn của HÔM NAY) lên trên tin đang có, từng ít một
+window.chenTinPhiaTren = async function (n) {
+  const khoi = document.querySelectorAll('.block-date')[1];
+  const dau = khoi.querySelector('.chat-item');
+  for (let i = 0; i < n; i++) khoi.insertBefore(await taoTin({ ten: i === 0 ? 'Cô Lan' : '', chu: `Tin sáng nay số ${i}` }), dau);
+};
+
+window.themNhieuTin = async function (n, khoi = 1) {
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < n; i++) frag.appendChild(await taoTin({ ten: 'Cô Lan', chu: `Tin lịch sử số ${i}` }));
+  document.querySelectorAll('.block-date')[khoi].appendChild(frag);
+};
+
+// React đổi CHỮ trong dòng có sẵn của thanh bên (không thêm phần tử mới)
+window.doiXemTruoc = function (ten, { nguoi = null, chu, khoaGio = 'STR_FEW_SECONDS', soGio = '' }) {
+  const muc = [...document.querySelectorAll('.msg-item')].find(m => m.querySelector('.conv-item-title__name').textContent.trim() === ten);
+  const xt = muc.querySelector('.z-conv-message__preview-message');
+  let ng = xt.querySelector('.z-conv-message__preview-sender-name');
+  if (nguoi === '' && ng) { ng.remove(); ng = null; }
+  if (nguoi) {
+    if (!ng) { ng = document.createElement('span'); ng.className = 'z-conv-message__preview-sender-name'; xt.prepend(ng); }
+    ng.firstChild ? (ng.firstChild.nodeValue = `${nguoi}: `) : (ng.textContent = `${nguoi}: `);
+  }
+  xt.querySelector('.inline .inline').firstChild.nodeValue = chu;
+  const gio = muc.querySelector('.preview-time > span');
+  gio.firstChild.nodeValue = soGio ? `${soGio} ` : '';
+  const k = gio.querySelector('[data-translate-inner]');
+  k.setAttribute('data-translate-inner', khoaGio);
+  k.textContent = khoaGio === 'STR_FEW_SECONDS' ? 'Vài giây' : khoaGio === 'STR_MINS' ? 'phút' : 'ngày';
+};
+
+window.doiDoanChat = async function (ten) {
+  document.getElementById('tieuDe').textContent = ten;
+  // Chat với chính mình có dòng phụ STR_SEND2ME_STATUS_TEXT_CLOUD (soi 01/10)
+  document.getElementById('phuDe').innerHTML = ten === 'My Documents'
+    ? '<span data-translate-inner="STR_SEND2ME_STATUS_TEXT_CLOUD">Lưu trữ và đồng bộ trên Cloud</span>' : '';
+  const s = document.getElementById('messageViewScroll');
+  s.innerHTML = '';
+  const k = khoiNgay(true);
+  for (let i = 0; i < 3; i++) k.appendChild(await taoTin({ chu: `Lịch sử của ${ten} ${i}` }));
+  s.appendChild(k);
+};
+
+window.thaTim = function () {
+  document.querySelector('.message-reaction-container').insertAdjacentHTML('beforeend', '<span class="reaction-count">2</span>');
+};
+
+(async () => {
+  const s = document.getElementById('messageViewScroll');
+  const homQua = khoiNgay(false, '30/09/2026');
+  homQua.appendChild(await taoTin({ ten: 'Cô Lan', chu: 'Tin hôm qua' }));
+  const homNay = khoiNgay(true);
+  homNay.appendChild(await taoTin({ ten: 'Cô Lan', chu: 'Chào cả lớp' }));
+  s.append(homQua, homNay);
+  window.__sanSang = true;
+})();
+</script>
+</body>
+</html>

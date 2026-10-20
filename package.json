@@ -1,0 +1,32 @@
+{
+  "name": "zalo-emergency-monitor",
+  "version": "2.0.0",
+  "description": "Zalo Web monitor with local dashboard, calendar, tasks, reminders (Yuyuko) and OpenRouter AI",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node src/index.js --headless=false",
+    "ui": "node src/index.js --ui-only --open",
+    "test": "node test/filter.test.js && node test/app.test.js && node test/dates.test.js && node test/filecard.test.js && node test/lich.test.js && node test/docs.test.js && node test/listener.test.js",
+    "logs": "powershell -Command \"Get-Content -Tail 50 -Wait logs/app.log\"",
+    "logs:alerts": "powershell -Command \"Get-Content -Tail 50 logs/alerts.log\"",
+    "thu-lich": "node tools/thu_lich.js",
+    "thu-yuyuko": "node tools/thu_yuyuko.js",
+    "soi-zalo": "node tools/soi_zalo.mjs"
+  },
+  "keywords": [
+    "zalo",
+    "monitor",
+    "alert",
+    "playwright",
+    "dashboard",
+    "openrouter"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "playwright": "^1.50.1"
+  }
+}

@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zalo Monitor</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230068ff'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='white' font-family='Arial' font-weight='700'%3EZ%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="/style.css">
+<script src="/app.js" defer></script>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">Z</div>
+      <div class="brand-text"><strong>Zalo Monitor</strong><span>Bảng điều khiển</span></div>
+    </div>
+
+    <nav class="nav" aria-label="Điều hướng">
+      <button class="nav-item is-active" type="button" data-view="overview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <span>Tổng quan</span>
+      </button>
+      <button class="nav-item" type="button" data-view="calendar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16.5" rx="2"/><path d="M16 2.5v4M8 2.5v4M3 10h18"/></svg>
+        <span>Lịch</span>
+      </button>
+      <button class="nav-item" type="button" data-view="tasks">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 6h10M10 12h10M10 18h10"/><path d="m3.5 6 1.5 1.5L7.5 5M3.5 12l1.5 1.5L7.5 11M3.5 18l1.5 1.5L7.5 17"/></svg>
+        <span>Công việc</span>
+        <span class="badge tone-primary" id="taskCount" hidden></span>
+      </button>
+      <button class="nav-item" type="button" data-view="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>
+        <span>Cài đặt</span>
+      </button>
+    </nav>
+
+    <div class="status-card">
+      <div class="status-row"><span class="dot" id="botDot"></span><span id="botText">Đang kết nối…</span></div>
+      <div class="status-row"><span class="dot" id="aiDot"></span><span id="aiText">AI: …</span></div>
+      <div class="status-row conn-row"><span class="dot" id="connDot"></span><span id="connText">Máy chủ: đang kết nối</span></div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- ================= TỔNG QUAN ================= -->
+    <section class="view is-active" id="view-overview" aria-labelledby="h-overview">
+      <header class="view-head">
+        <div><h1 id="h-overview">Tổng quan</h1><p class="muted" id="todayText"></p></div>
+      </header>
+
+      <div class="banner" id="botBanner" hidden></div>
+
+      <div class="stats">
+        <div class="stat"><span class="stat-label">Tin nhắn hôm nay</span><strong id="statMessages">0</strong></div>
+        <div class="stat"><span class="stat-label">Cảnh báo hôm nay</span><strong id="statAlerts">0</strong></div>
+        <div class="stat"><span class="stat-label">Việc chưa xong</span><strong id="statOpen">0</strong></div>
+        <div class="stat is-danger"><span class="stat-label">Việc quá hạn</span><strong id="statOverdue">0</strong></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><h2>Cảnh báo gần đây</h2></div>
+          <ul class="feed" id="alertList"></ul>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>Tin nhắn mới</h2><span class="muted small">Cập nhật trực tiếp</span></div>
+          <ul class="feed" id="messageList"></ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>Thử bộ lọc</h2><span class="muted small">Chạy một tin nhắn giả qua bộ lọc + AI, không cần Zalo</span></div>
+        <form id="testForm" class="test-form" autocomplete="off">
+          <input name="sender" placeholder="Người gửi (VD: Sếp)" maxlength="100" aria-label="Người gửi">
+          <input name="content" placeholder="Nội dung (VD: Server sập rồi, xử lý gấp!)" maxlength="2000" required aria-label="Nội dung">
+          <label class="check"><input type="checkbox" name="isGroup"> Tin nhóm</label>
+          <button class="btn btn-primary" type="submit">Phân tích</button>
+        </form>
+        <div class="result" id="testResult" hidden></div>
+      </div>
+    </section>
+
+    <!-- ================= LỊCH ================= -->
+    <section class="view" id="view-calendar" aria-labelledby="calTitle">
+      <header class="view-head">
+        <div><h1 id="calTitle">Lịch</h1><p class="muted">Công việc theo hạn chót. Bấm vào một ngày để xem và thêm việc.</p></div>
+        <div class="toolbar">
+          <button class="btn" type="button" id="calPrev" aria-label="Tháng trước">‹</button>
+          <button class="btn" type="button" id="calToday">Hôm nay</button>
+          <button class="btn" type="button" id="calNext" aria-label="Tháng sau">›</button>
+        </div>
+      </header>
+
+      <div class="cal-layout">
+        <div class="card cal-card">
+          <div class="cal-weekdays" aria-hidden="true"><span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>CN</span></div>
+          <div class="cal-grid" id="calGrid"></div>
+        </div>
+
+        <aside class="card day-panel">
+          <h2 id="dayTitle"></h2>
+          <ul class="task-list compact" id="dayTasks"></ul>
+          <form id="dayForm" class="stack" autocomplete="off">
+            <input name="title" placeholder="Thêm việc cho ngày này…" maxlength="200" required aria-label="Tên công việc">
+            <div class="row">
+              <input type="time" name="time" aria-label="Giờ">
+              <select name="priority" aria-label="Ưu tiên">
+                <option value="medium">Trung bình</option>
+                <option value="high">Cao</option>
+                <option value="low">Thấp</option>
+              </select>
+              <button class="btn btn-primary" type="submit">Thêm</button>
+            </div>
+          </form>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ================= CÔNG VIỆC ================= -->
+    <section class="view" id="view-tasks" aria-labelledby="h-tasks">
+      <header class="view-head">
+        <div><h1 id="h-tasks">Công việc</h1><p class="muted">Việc tạo tay, tự tạo từ cảnh báo, hoặc AI trích từ tin nhắn Zalo</p></div>
+        <button class="btn btn-primary" type="button" id="newTaskBtn">+ Thêm việc</button>
+      </header>
+
+      <div class="toolbar spread">
+        <div class="segmented" id="taskFilter">
+          <button type="button" data-filter="open" class="is-active">Chưa xong</button>
+          <button type="button" data-filter="today">Hôm nay</button>
+          <button type="button" data-filter="overdue">Quá hạn</button>
+          <button type="button" data-filter="done">Đã xong</button>
+          <button type="button" data-filter="all">Tất cả</button>
+        </div>
+        <input type="search" id="taskSearch" placeholder="Tìm việc…" aria-label="Tìm việc">
+      </div>
+
+      <form class="card task-form" id="taskForm" hidden autocomplete="off">
+        <h2 id="taskFormTitle">Thêm công việc</h2>
+        <label>Tiêu đề<input name="title" maxlength="200" required></label>
+        <label>Ghi chú<textarea name="note" rows="3" maxlength="2000"></textarea></label>
+        <div class="row">
+          <label>Ngày<input type="date" name="date"></label>
+          <label>Giờ<input type="time" name="time"></label>
+          <label>Ưu tiên
+            <select name="priority">
+              <option value="medium">Trung bình</option>
+              <option value="high">Cao</option>
+              <option value="low">Thấp</option>
+            </select>
+          </label>
+          <label>Trạng thái
+            <select name="status">
+              <option value="todo">Cần làm</option>
+              <option value="doing">Đang làm</option>
+              <option value="done">Đã xong</option>
+            </select>
+          </label>
+        </div>
+        <div class="row end">
+          <button class="btn" type="button" id="taskCancel">Huỷ</button>
+          <button class="btn btn-primary" type="submit">Lưu</button>
+        </div>
+      </form>
+
+      <ul class="task-list" id="taskList"></ul>
+    </section>
+
+    <!-- ================= CÀI ĐẶT ================= -->
+    <section class="view" id="view-settings" aria-labelledby="h-settings">
+      <header class="view-head">
+        <div><h1 id="h-settings">Cài đặt</h1><p class="muted">Lưu vào <code>config/config.json</code> — bot áp dụng ngay, không cần khởi động lại.</p></div>
+      </header>
+
+      <div class="card">
+        <div class="card-head"><h2>OpenRouter API key</h2><span class="badge" id="keyPill">Chưa có key</span></div>
+        <p class="muted small">AI đọc tin nhắn mới để quyết định có khẩn cấp không và tự tạo công việc / lịch hẹn. <strong>Nội dung tin nhắn sẽ được gửi tới OpenRouter.</strong> Key được lưu trong <code>data/secrets.json</code> trên máy này và không bao giờ được gửi ngược lại trình duyệt.</p>
+        <form id="keyForm" class="key-row" autocomplete="off">
+          <input type="password" name="key" id="keyInput" placeholder="Dán API key OpenRouter (sk-or-…)" spellcheck="false" autocomplete="off" aria-label="API key OpenRouter">
+          <button class="btn btn-primary" type="submit">Lưu key</button>
+          <button class="btn" type="button" id="keyTest">Kiểm tra</button>
+          <button class="btn btn-danger-ghost" type="button" id="keyDelete">Xoá key</button>
+        </form>
+        <div class="result" id="keyResult" hidden></div>
+      </div>
+
+      <form id="settingsForm" class="settings-form" autocomplete="off">
+        <div class="card">
+          <h2>Phân tích AI</h2>
+          <label class="switch"><input type="checkbox" name="aiEnabled"><span>Bật phân tích AI</span></label>
+          <div class="row">
+            <label>Model<input name="aiModel" list="modelList" maxlength="120" spellcheck="false"></label>
+            <label>Phạm vi
+              <select name="aiScope">
+                <option value="all">Mọi tin nhắn mới</option>
+                <option value="keywords">Chỉ tin trùng từ khóa / VIP</option>
+              </select>
+            </label>
+            <label>Tối đa lượt gọi / phút<input type="number" name="aiMax" min="1" max="120"></label>
+          </div>
+          <datalist id="modelList">
+            <option value="z-ai/glm-5.3-flash"></option>
+            <option value="anthropic/claude-haiku-5.5"></option>
+            <option value="google/gemini-3.1-flash-lite"></option>
+            <option value="deepseek/deepseek-v4.1-flash"></option>
+            <option value="qwen/qwen3.7-flash"></option>
+            <option value="openrouter/free"></option>
+          </datalist>
+          <p class="muted small">Người gửi VIP luôn được báo động. Tin trùng từ khóa do AI xác nhận lại (giảm báo nhầm). Khi AI lỗi hoặc hết lượt, bot tự dùng bộ lọc từ khóa.</p>
+        </div>
+
+        <div class="card">
+          <h2>Bộ lọc khẩn cấp</h2>
+          <div class="grid-2 tight">
+            <label>Từ khóa khẩn cấp <small>(mỗi dòng một từ)</small><textarea name="urgentKeywords" rows="8" spellcheck="false"></textarea></label>
+            <label>Người gửi VIP <small>(mỗi dòng một tên)</small><textarea name="vipSenders" rows="8" spellcheck="false"></textarea></label>
+          </div>
+          <div class="row">
+            <label>Giãn cách giữa 2 cảnh báo của cùng người gửi (phút)<input type="number" name="cooldownMinutes" min="0" max="1440"></label>
+          </div>
+          <label class="switch"><input type="checkbox" name="enableSoundAlert"><span>Kêu còi trên máy tính khi có cảnh báo</span></label>
+          <label class="switch"><input type="checkbox" name="autoTaskFromAlerts"><span>Tự tạo công việc cho mỗi cảnh báo</span></label>
+          <label class="switch"><input type="checkbox" name="ignoreOwnMessages"><span>Bỏ qua tin do chính tôi gửi</span></label>
+        </div>
+
+        <div class="card">
+          <h2>Lịch cảnh báo</h2>
+          <label class="switch"><input type="checkbox" name="scheduleEnabled"><span>Chỉ báo động trong khung giờ</span></label>
+          <div class="row">
+            <label>Từ<input type="time" name="alertFrom"></label>
+            <label>Đến<input type="time" name="alertTo"></label>
+          </div>
+          <label class="switch"><input type="checkbox" name="nightEnabled"><span>Ghi chú "ban đêm" trong lý do cảnh báo</span></label>
+          <div class="row">
+            <label>Ban đêm từ (giờ)<input type="number" name="nightStart" min="0" max="23"></label>
+            <label>Đến (giờ)<input type="number" name="nightEnd" min="0" max="23"></label>
+          </div>
+        </div>
+
+        <div class="save-bar">
+          <span class="muted small" id="saveState"></span>
+          <button class="btn btn-primary" type="submit">Lưu cài đặt</button>
+        </div>
+      </form>
+
+      <div class="card">
+        <h2>Thông báo trên trình duyệt này</h2>
+        <div class="row">
+          <button class="btn" type="button" id="notifyBtn">Bật thông báo hệ thống</button>
+          <span class="muted small" id="notifyState"></span>
+        </div>
+        <label class="switch"><input type="checkbox" id="uiSound"><span>Phát âm thanh trên trang khi có cảnh báo</span></label>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+</body>
+</html>
